@@ -15,7 +15,7 @@ Usage
 -----
 
 ```javascript
-with (Kakahiaka)
+with (kakahiaka)
 (function () {
   //...
 }());
