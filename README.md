@@ -103,7 +103,7 @@ var add_todo = K.deftransition(function (state, title) {
 });
 
 var toggle_todo_complete_p = K.deftransition(function (state, id) {
-    return { todos: update_by_id(state.todos, id_eq(id), "complete_p", _.not) };
+    return { todos: update(state.todos, id_eq(id), "complete_p", _.not) };
 });
 
 var change_weather K.deftransition(function (state, weather) {
@@ -124,7 +124,7 @@ function fetch_weather () {
 
 //========( DOM interaction )========//
 
-var todo_template =  "<h1 class="todo" data-id="{{id}}">{{title}}</p>";
+var todo_template =  '<h1 class="todo" data-id="{{id}}">{{title}}</p>';
 
 K.deftransition("todos", function (state) {
     var todos_html = _.map( state.todos
@@ -151,7 +151,7 @@ $(function () {
 
 //========( Helpers )========//
 
-function update_by_id (coll, filter, prop, updater) {
+function update (coll, filter, prop, updater) {
     return _.map(coll, function (x) {
         return filter(x) ? _.assoc(prop, updater(x)) : x;
     });
