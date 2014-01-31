@@ -7,6 +7,7 @@
 var kakahiaka = (function () {
     /*** private ***/
 
+    var persist_fn = _.identity;
 
     function reset_BANG_ (app, state) {
         app._state = state;
@@ -25,8 +26,13 @@ var kakahiaka = (function () {
 
     /*** public ***/
 
-    function app (x) {
-        return {_state: x, _watchers: {}};
+    /**
+     * app :: state * (state -> IO ()) * (() -> state) -> App
+     */
+    function app (x, persist, recover) {
+        if (persist) persist_fn = persist;
+        return { _state: recover ? _.conj(x, recover()) : x
+               , _watchers: {}};
     }
 
     function deref (app) {
@@ -45,9 +51,13 @@ var kakahiaka = (function () {
             var new_s = _.merge(old_s, diff);
             _.each(diff, function (__, key_changed) {
                 var watcher = get_watcher(app, key_changed);
-                if (watcher) watcher(new_s, old_s);
+                if (watcher)
+                    setTimeout(function () {
+                        watcher(new_s, old_s);
+                    }, 0);
             });
             reset_BANG_(app, new_s);
+            persist_fn(new_s);
             return undefined;
         });
     }
