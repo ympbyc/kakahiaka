@@ -151,6 +151,14 @@ $(function () {
 
 //========( Helpers )========//
 
+function persist (state) {
+    localStorage.setItem("airpo_state", JSON.stringify(state));
+}
+
+function recover (state) {
+    return JSON.parse(localStorage.getItem("airpo_state") || "{}");
+}
+
 function update (coll, filter, prop, updater) {
     return _.map(coll, function (x) {
         return filter(x) ? _.assoc(prop, updater(x)) : x;

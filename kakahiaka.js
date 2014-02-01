@@ -7,8 +7,6 @@
 var kakahiaka = (function () {
     /*** private ***/
 
-    var persist_fn = _.identity;
-
     function reset_BANG_ (app, state) {
         app._state = state;
         return app;
@@ -30,9 +28,9 @@ var kakahiaka = (function () {
      * app :: state * (state -> IO ()) * (() -> state) -> App
      */
     function app (x, persist, recover) {
-        if (persist) persist_fn = persist;
         return { _state: recover ? _.conj(x, recover()) : x
-               , _watchers: {}};
+               , _watchers: {}
+               , _persist: persist };
     }
 
     function deref (app) {
@@ -57,7 +55,7 @@ var kakahiaka = (function () {
                     }, 0);
             });
             reset_BANG_(app, new_s);
-            persist_fn(new_s);
+            app._persist(new_s);
             return undefined;
         });
     }
