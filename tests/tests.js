@@ -20,43 +20,56 @@ with (kakahiaka)
     var view_mock = "";
 
     function message (x) {
-        return _.simplate("{{name}} has {{friends_count}} friends: {{friends}}."
+        return p(_.simplate("{{name}} has {{friends_count}} friends: {{friends}}."
                           + " He lost {{lost_friends}}.",
-                          x);
+                          x));
     }
 
+    function p (x) { console.log(x); return x; }
+
     watch_transition(test_app, "friends", function (new_s, old_s) {
-        view_mock =
-            message({name: new_s.name,
-                     friends_count: _.size(new_s.friends),
-                     friends: _.join(new_s.friends, ", "),
-                     lost_friends: _.join(_.difference(old_s.friends, new_s.friends), ", ")});
+        view_mock = message({ name: new_s.name,
+                              friends_count: _.size(new_s.friends),
+                              friends: _.join(new_s.friends, ", "),
+                              lost_friends: _.join(_.difference(old_s.friends, new_s.friends), ", ")});
     });
 
 
     test("init", function () {
         de(deref(test_app), initial_state,
            "initial dereferencing of the app should return the initial state");
+
         se(view_mock, "", "make sure the view is empty");
     });
 
     test("new_friend", function () {
         new_friend(test_app, "Sean");
         de(deref(test_app).friends, ["Kei", "Harry", "Simon", "Sean"], "A friend is added");
-        se(view_mock, message({name: "David",
-                               friends_count: "4",
-                               friends: "Kei, Harry, Simon, Sean",
-                               lost_friends: ""}),
-          "View has changed in responce to the app");
     });
 
-    test("bye_friend", function () {
-        bye_friend(test_app, "Simon");
-        de(deref(test_app).friends, ["Kei", "Harry", "Sean"], "A friend is gone");
-        se(view_mock, message({name: "David",
-                               friends_count: "3",
-                               friends: "Kei, Harry, Sean",
-                               lost_friends: "Simon"}),
-          "View reflects the change");
-    });
+    setTimeout(function () {
+        test("view rendering", function () {
+            se(view_mock, message({name: "David",
+                                   friends_count: "4",
+                                   friends: "Kei, Harry, Simon, Sean",
+                                   lost_friends: ""}),
+               "View has changed in responce to the change of state");
+        });
+
+        test("bye_friend", function () {
+            bye_friend(test_app, "Simon");
+            de(deref(test_app).friends, ["Kei", "Harry", "Sean"], "A friend is gone");
+        });
+
+        setTimeout(function () {
+            test("view rendering 2", function () {
+                se(view_mock, message({name: "David",
+                                       friends_count: "3",
+                                       friends: "Kei, Harry, Sean",
+                                       lost_friends: "Simon"}),
+                   "View reflects the change");
+            });
+        }, 200);
+
+    }, 400);
 }());
