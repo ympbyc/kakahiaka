@@ -67,10 +67,19 @@ var kakahiaka = (function () {
     var watch_transition = add_watch;
 
 
+    /**
+     * simple_update :: App * String * Any -> undefined
+     */
+    var simple_update = K.deftransition(function (state, field, value) {
+        return _.assoc({}, field, value);
+    });
+
+
     return {
         app:              app,
         deref:            deref,
         deftransition:    deftransition,
-        watch_transition: watch_transition
+        watch_transition: watch_transition,
+        simple_update:    simple_update
     };
 }());
