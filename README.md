@@ -70,7 +70,7 @@ var bye_friend = deftransition(function (state, name) {
 Define a sideeffectful operation to happen whenever the field in the state changes,
 
 ```javascript
-watch_transition(sample_app, function (new_state, old_state) {
+watch_transition(sample_app, "friends", function (new_state, old_state) {
     $(".friends").text(new_state.friends.join(","));
     $(".lost_friends").text(_.difference(old_s.friends, new_s.friends).join(","));
 });
@@ -106,7 +106,7 @@ var toggle_todo_complete_p = K.deftransition(function (state, id) {
     return { todos: update(state.todos, id_eq(id), "complete_p", _.not) };
 });
 
-var change_weather K.deftransition(function (state, weather) {
+var change_weather = K.deftransition(function (state, weather) {
     return { weather: weather };
 });
 
@@ -126,13 +126,13 @@ function fetch_weather () {
 
 var todo_template =  '<h1 class="todo" data-id="{{id}}">{{title}}</p>';
 
-K.deftransition("todos", function (state) {
+K.watch_transition(app, "todos", function (state) {
     var todos_html = _.map( state.todos
                           , _.partial(_.simplate, todo_template));
     $("#todos").html(_.join(todos_html));
 });
 
-K.deftransition("weather", function (state) {
+K.watch_transition(app, "weather", function (state) {
     $(".weather").text(state.weather);
 });
 
