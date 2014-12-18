@@ -30,7 +30,7 @@ var kakahiaka = (function () {
     function app (x, persist, recover) {
         return { _state: recover ? _.conj(x, recover()) : x
                , _watchers: {}
-               , _persist: persist };
+               , _persist: persist || function (st) {} };
     }
 
     function deref (app) {
