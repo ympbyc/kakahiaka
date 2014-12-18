@@ -5,21 +5,15 @@ Kakahiaka
 
 2013 Minori Yamashita <ympbyc@gmail.com>
 
-Dependencies
+
+Installation
 ------------
 
-Underscore, Underscore-fix
-
-
-Usage
------
-
-```javascript
-with (kakahiaka)
-(function () {
-  //...
-}());
+```sh
+bower install https://github.com/ympbyc/kakahiaka.git
 ```
+
+(Dependencies) Underscore, Underscore-fix
 
 API
 ---
@@ -29,14 +23,16 @@ API
 Creates an instance of Kakahiaka application.
 
 ```javascript
-var sample_app = app({friends: ["Tony", "Sam"]});
+var K = kakahiaka;
+
+var sample_app = K.app({friends: ["Tony", "Sam"]});
 //=> an app
 ```
 
 If you pass two functions as second and third arguments, those functions will be used to persist and recover the state of the app.
 
 ```javascript
-var sample_app = app({}, save_state, recover_state);
+var sample_app = K.app({}, save_state, recover_state);
 
 function save_state (state) {
     localstorage.setItem("sample_app_state", JSON.stringify(state));
@@ -53,13 +49,13 @@ Defines a function F that receive an app and arbitrary number of arguments.
 
 ```javascript
 /* adds a friend */
-var new_friend = deftransition(function (state, name) {
+var new_friend = K.deftransition(function (state, name) {
     return { friends: _.conj(state.friends, name) };
 });
 //=> a function
 
 /* removes a friend */
-var bye_friend = deftransition(function (state, name) {
+var bye_friend = K.deftransition(function (state, name) {
     return { friends: _.reject(state.friends, _.eq(name)) };
 });
 //=> a function
@@ -70,7 +66,7 @@ var bye_friend = deftransition(function (state, name) {
 Define a sideeffectful operation to happen whenever the field in the state changes,
 
 ```javascript
-watch_transition(sample_app, "friends", function (new_state, old_state) {
+K.watch_transition(sample_app, "friends", function (new_state, old_state) {
     $(".friends").text(new_state.friends.join(","));
     $(".lost_friends").text(_.difference(old_s.friends, new_s.friends).join(","));
 });
@@ -78,7 +74,7 @@ watch_transition(sample_app, "friends", function (new_state, old_state) {
 
 ### deref
 
-`deref(sample_app)` too get the current state of the app. Rarely used.
+`K.deref(sample_app)` too get the current state of the app. Rarely used.
 
 
 
@@ -179,6 +175,7 @@ Conceptually Close Projects
 + [Pasta](http://github.com/ympbyc/Pasta) predecessor to Kakahiaka
 + [Worlds](http://www.vpri.org/pdf/tr2011001_final_worlds.pdf) by Viewpoint Research Institute
 + [WebFUI](https://github.com/drcode/webfui)
++ [Flux](http://facebook.github.io/flux/docs/overview.html)
 
 
 Misc
