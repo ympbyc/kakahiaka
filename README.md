@@ -125,7 +125,7 @@ var todo_template =  '<h1 class="todo" data-id="{{id}}">{{title}}</p>';
 K.watch_transition(app, "todos", function (state) {
     var todos_html = _.map( state.todos
                           , _.partial(_.simplate, todo_template));
-    $("#todos").html(_.join(todos_html));
+    $("#todos").html(todos_html.join(""));
 });
 
 K.watch_transition(app, "weather", function (state) {
