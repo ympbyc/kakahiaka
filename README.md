@@ -74,7 +74,7 @@ K.watch_transition(sample_app, "friends", function (new_state, old_state) {
 
 ### deref
 
-`K.deref(sample_app)` too get the current state of the app. Rarely used.
+`K.deref(sample_app)` gets the current state of the app. Rarely used.
 
 
 
