@@ -70,7 +70,7 @@ var kakahiaka = (function () {
     /**
      * simple_update :: App * String * Any -> undefined
      */
-    var simple_update = K.deftransition(function (state, field, value) {
+    var simple_update = deftransition(function (state, field, value) {
         return _.assoc({}, field, value);
     });
 
