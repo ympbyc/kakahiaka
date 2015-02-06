@@ -66,7 +66,7 @@ var bye_friend = K.deftransition(function (state, name) {
 Define a sideeffectful operation to happen whenever the field in the state changes,
 
 ```javascript
-K.watch_transition(sample_app, "friends", function (new_state, old_state) {
+K.watch_transition(sample_app, "friends", function (new_state, old_state, changed_keys) {
     $(".friends").text(new_state.friends.join(","));
     $(".lost_friends").text(_.difference(old_s.friends, new_s.friends).join(","));
 });

@@ -32,7 +32,7 @@ var kakahiaka = (function () {
         _.each(diff, function (__, key_changed) {
             _.each(get_watchers(app, key_changed), function (watcher) {
                 setTimeout(function () {
-                    watcher(new_s, old_s);
+                    watcher(new_s, old_s, _.keys(diff));
                 }, 0);
             });
         });
