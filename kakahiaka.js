@@ -19,20 +19,22 @@ var kakahiaka = (function () {
     function add_watch (app, key, f, immidiate) {
         if (_.has(app._watchers, key))
             app._watchers[key].push(f);
-        else {
+        else
             app._watchers[key] = [f];
-            if (immidiate && _.has(app._state, key))
-                setTimeout(function () { f(deref(app), {}); }, 0);
-        }
+
+        if (immidiate && _.has(app._state, key))
+            setTimeout(function () { f(deref(app), {}); }, 0);
+
         return app;
     }
 
 
     function commit (app, diff, old_s, new_s) {
+        var changed_keys = _.keys(diff);
         _.each(diff, function (__, key_changed) {
             _.each(get_watchers(app, key_changed), function (watcher) {
                 setTimeout(function () {
-                    watcher(new_s, old_s, _.keys(diff));
+                    watcher(new_s, old_s, changed_keys);
                 }, 0);
             });
         });
@@ -56,7 +58,7 @@ var kakahiaka = (function () {
     }
 
     function deref (app) {
-        return app._state;
+        return _.clone(app._state);
     }
 
 
