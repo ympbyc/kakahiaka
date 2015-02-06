@@ -17,7 +17,7 @@
         "bower_components"
     ],
     "dependencies": {
-        "underscore": "1.4.4~",
+        "underscore": "1.7.0",
         "underscore-fix": "git://github.com/ympbyc/underscore-fix.git"
     }
 }
