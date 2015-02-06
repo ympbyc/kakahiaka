@@ -1,13 +1,23 @@
 {
-  "name": "kakahiaka",
-  "version": "0.1.0",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "components"
-  ],
-  "dependencies": {
-    "underscore": "1.4.4~",
-    "underscore-fix": "git://github.com/ympbyc/underscore-fix.git"
-  }
+    "name": "kakahiaka",
+    "version": "0.1.2",
+    "authors": [
+        "Minori Yamashita <ympbyc@gmail.com>"
+    ],
+    "description": "Nothing else but Flux",
+    "main": "kakahiaka.js",
+    "moduleType": [
+        "globals"
+    ],
+    "licence": "MIT",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "components",
+        "bower_components"
+    ],
+    "dependencies": {
+        "underscore": "1.4.4~",
+        "underscore-fix": "git://github.com/ympbyc/underscore-fix.git"
+    }
 }

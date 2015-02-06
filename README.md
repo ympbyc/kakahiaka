@@ -1,7 +1,7 @@
 Kakahiaka
 =========
 
-**Functional Approach to MVC**
+**Nothing else but FLUX**
 
 2013 Minori Yamashita <ympbyc@gmail.com>
 
@@ -168,6 +168,11 @@ function id_eq (id) {
 ///...etc
 ```
 
+
+Loadmap
+-------
+
++ Rewrite it to use `Object.observe` when it arrives.
 
 Conceptually Close Projects
 ---------------------------
