@@ -1,0 +1,233 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'install', '-g' ]
+2 info using npm@2.1.17
+3 info using node@v0.10.35
+4 verbose node symlink /usr/local/bin/node
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec { raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/Users/yamashita/Work/kakahiaka',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/yamashita/.npm/kakahiaka/0.1.2/package.tgz not in flight; packing
+9 verbose tar pack [ '/Users/yamashita/.npm/kakahiaka/0.1.2/package.tgz',
+9 verbose tar pack   '/Users/yamashita/Work/kakahiaka' ]
+10 verbose tarball /Users/yamashita/.npm/kakahiaka/0.1.2/package.tgz
+11 verbose folder /Users/yamashita/Work/kakahiaka
+12 info prepublish kakahiaka@0.1.2
+13 verbose addLocalTarball adding from inside cache /Users/yamashita/.npm/kakahiaka/0.1.2/package.tgz
+14 silly cache afterAdd kakahiaka@0.1.2
+15 verbose afterAdd /Users/yamashita/.npm/kakahiaka/0.1.2/package/package.json not in flight; writing
+16 verbose afterAdd /Users/yamashita/.npm/kakahiaka/0.1.2/package/package.json written
+17 silly install resolved [ { name: 'kakahiaka',
+17 silly install resolved     version: '0.1.2',
+17 silly install resolved     author: { name: 'Minori Yamashita', email: 'ympbyc@gmail.com' },
+17 silly install resolved     description: 'Nothing else but Flux',
+17 silly install resolved     main: 'kakahiaka.js',
+17 silly install resolved     moduleType: [ 'globals' ],
+17 silly install resolved     licence: 'MIT',
+17 silly install resolved     ignore: [ '**/.*', 'node_modules', 'components', 'bower_components' ],
+17 silly install resolved     dependencies: { underscore: '*', 'underscore-fix': '*' },
+17 silly install resolved     gitHead: '785450f0777cbcd948b60124582ce9b6d5c56dfc',
+17 silly install resolved     readme: 'Kakahiaka\n=========\n\n**Nothing else but FLUX**\n\n2013 Minori Yamashita <ympbyc@gmail.com>\n\n\nInstallation\n------------\n\n```sh\nbower install https://github.com/ympbyc/kakahiaka.git\n```\n\n(Dependencies) Underscore, Underscore-fix\n\nAPI\n---\n\n### app\n\nCreates an instance of Kakahiaka application.\n\n```javascript\nvar K = kakahiaka;\n\nvar sample_app = K.app({friends: ["Tony", "Sam"]});\n//=> an app\n```\n\nIf you pass two functions as second and third arguments, those functions will be used to persist and recover the state of the app.\n\n```javascript\nvar sample_app = K.app({}, save_state, recover_state);\n\nfunction save_state (state) {\n    localstorage.setItem("sample_app_state", JSON.stringify(state));\n}\nfunction recover_state () {\n    return JSON.parse(localStorage.getItem("sample_app_state") || "{}");\n}\n```\n\n### deftransition\n\nDefines a function F that receive an app and arbitrary number of arguments.\n`Deftransition` takes a function G which gets invoked with current state and the argument passed to F, when the function defined by deftransition gets called. The function G must return a hashmap of changes to the state.\n\n```javascript\n/* adds a friend */\nvar new_friend = K.deftransition(function (state, name) {\n    return { friends: _.conj(state.friends, name) };\n});\n//=> a function\n\n/* removes a friend */\nvar bye_friend = K.deftransition(function (state, name) {\n    return { friends: _.reject(state.friends, _.eq(name)) };\n});\n//=> a function\n```\n\n### watch_transition\n\nDefine a sideeffectful operation to happen whenever the field in the state changes,\n\n```javascript\nK.watch_transition(sample_app, "friends", function (new_state, old_state, changed_keys) {\n    $(".friends").text(new_state.friends.join(","));\n    $(".lost_friends").text(_.difference(old_s.friends, new_s.friends).join(","));\n});\n```\n\n### deref\n\n`K.deref(sample_app)` gets the current state of the app. Rarely used.\n\n\n\nTypical Structure\n-----------------\n\n```javascript\nvar K = kakahiaka;\n\n//========( Initialization )========//\n\nvar app = K.app({todos: [], weather: "cloudy"}, persist, recover);\n\n\n//========( Definition of the app)=======//\n//Similar to the Model in MVC\n\nvar add_todo = K.deftransition(function (state, title) {\n    return { todos: _.conj(state.todos, { title:      title\n                                        , complete_p: false\n                                        , id:         uuid() }) };\n});\n\nvar toggle_todo_complete_p = K.deftransition(function (state, id) {\n    return { todos: update(state.todos, id_eq(id), "complete_p", _.not) };\n});\n\nvar change_weather = K.deftransition(function (state, weather) {\n    return { weather: weather };\n});\n\n\n//========( API calls )========//\n\nfunction fetch_weather () {\n    $.getJSON("http://example.com/api/weather/tokyo", function (doc) {\n        if (successful_responce_p(doc))\n            change_weather(app, change_weather(doc.data));\n    });\n}\n\n\n\n//========( DOM interaction )========//\n\nvar todo_template =  \'<h1 class="todo" data-id="{{id}}">{{title}}</p>\';\n\nK.watch_transition(app, "todos", function (state) {\n    var todos_html = _.map( state.todos\n                          , _.partial(_.simplate, todo_template));\n    $("#todos").html(todos_html.join(""));\n});\n\nK.watch_transition(app, "weather", function (state) {\n    $(".weather").text(state.weather);\n});\n\n$(function () {\n    $("#add-todo-btn").on("click", function () {\n        add_todo(app, $("#todo-title").val());\n    });\n\n    $(document).on("click", "todo", function () {\n        toggle_todo_complete_p(app, $(this).data(id));\n    });\n\n    setInterval(fetch_weather, 1000 * 60 * 10); //update weather every 10 minutes\n});\n\n\n//========( Helpers )========//\n\nfunction persist (state) {\n    localStorage.setItem("airpo_state", JSON.stringify(state));\n}\n\nfunction recover (state) {\n    return JSON.parse(localStorage.getItem("airpo_state") || "{}");\n}\n\nfunction update (coll, filter, prop, updater) {\n    return _.map(coll, function (x) {\n        return filter(x) ? _.assoc(prop, updater(x)) : x;\n    });\n}\n\nfunction id_eq (id) {\n    return function (x) { return x.id === id; };\n}\n\n///...etc\n```\n\n\nLoadmap\n-------\n\n+ Rewrite it to use `Object.observe` when it arrives.\n\nConceptually Close Projects\n---------------------------\n\n+ [Pasta](http://github.com/ympbyc/Pasta) predecessor to Kakahiaka\n+ [Worlds](http://www.vpri.org/pdf/tr2011001_final_worlds.pdf) by Viewpoint Research Institute\n+ [WebFUI](https://github.com/drcode/webfui)\n+ [Flux](http://facebook.github.io/flux/docs/overview.html)\n\n\nMisc\n----\n\nKakahiaka is licensed under MIT licence\n',
+17 silly install resolved     readmeFilename: 'README.md',
+17 silly install resolved     _id: 'kakahiaka@0.1.2',
+17 silly install resolved     scripts: {},
+17 silly install resolved     _shasum: '31b0c042d38eddc149a9f57572575047fd14e2c2',
+17 silly install resolved     _from: '../../Users/yamashita/Work/kakahiaka',
+17 silly install resolved     _resolved: 'file:../../Users/yamashita/Work/kakahiaka' } ]
+18 info install kakahiaka@0.1.2 into /usr/local/lib
+19 info installOne kakahiaka@0.1.2
+20 verbose installOne of kakahiaka to /usr/local/lib not in flight; installing
+21 verbose lock using /Users/yamashita/.npm/_locks/kakahiaka-4b631a55bb9c2fbe.lock for /usr/local/lib/node_modules/kakahiaka
+22 silly install write writing kakahiaka 0.1.2 to /usr/local/lib/node_modules/kakahiaka
+23 silly cache addNamed cb kakahiaka@0.1.2
+24 verbose unbuild lib/node_modules/kakahiaka
+25 verbose gentlyRm vacuuming /usr/local/lib/node_modules/kakahiaka
+26 verbose tar unpack /Users/yamashita/.npm/kakahiaka/0.1.2/package.tgz
+27 verbose tar unpacking to /usr/local/lib/node_modules/kakahiaka
+28 verbose gentlyRm vacuuming /usr/local/lib/node_modules/kakahiaka
+29 silly gunzTarPerm modes [ '755', '644' ]
+30 silly gunzTarPerm extractEntry package.json
+31 silly gunzTarPerm extractEntry README.md
+32 silly gunzTarPerm extractEntry LICENSE
+33 silly gunzTarPerm extractEntry kakahiaka.js
+34 silly gunzTarPerm extractEntry bower.json
+35 silly gunzTarPerm extractEntry tests/tests.js
+36 silly gunzTarPerm extractEntry tests/tests.html
+37 info preinstall kakahiaka@0.1.2
+38 silly prepareForInstallMany adding underscore@* from kakahiaka dependencies
+39 silly prepareForInstallMany adding underscore-fix@* from kakahiaka dependencies
+40 silly cache add args [ 'underscore@*', null ]
+41 verbose cache add spec underscore@*
+42 silly cache add args [ 'underscore-fix@*', null ]
+43 verbose cache add spec underscore-fix@*
+44 silly cache add parsed spec { raw: 'underscore@*',
+44 silly cache add   scope: null,
+44 silly cache add   name: 'underscore',
+44 silly cache add   rawSpec: '*',
+44 silly cache add   spec: '*',
+44 silly cache add   type: 'range' }
+45 verbose addNamed underscore@*
+46 silly addNamed semver.valid null
+47 silly addNamed semver.validRange *
+48 silly addNameRange { name: 'underscore', range: '*', hasData: false }
+49 silly mapToRegistry name underscore
+50 silly mapToRegistry using default registry
+51 silly mapToRegistry registry https://registry.npmjs.org/
+52 silly mapToRegistry uri https://registry.npmjs.org/underscore
+53 verbose addNameRange registry:https://registry.npmjs.org/underscore not in flight; fetching
+54 silly cache add parsed spec { raw: 'underscore-fix@*',
+54 silly cache add   scope: null,
+54 silly cache add   name: 'underscore-fix',
+54 silly cache add   rawSpec: '*',
+54 silly cache add   spec: '*',
+54 silly cache add   type: 'range' }
+55 verbose addNamed underscore-fix@*
+56 silly addNamed semver.valid null
+57 silly addNamed semver.validRange *
+58 silly addNameRange { name: 'underscore-fix', range: '*', hasData: false }
+59 silly mapToRegistry name underscore-fix
+60 silly mapToRegistry using default registry
+61 silly mapToRegistry registry https://registry.npmjs.org/
+62 silly mapToRegistry uri https://registry.npmjs.org/underscore-fix
+63 verbose addNameRange registry:https://registry.npmjs.org/underscore-fix not in flight; fetching
+64 verbose request uri https://registry.npmjs.org/underscore-fix
+65 verbose request no auth needed
+66 info attempt registry request try #1 at 12:05:43
+67 verbose request id e288fbc4c8bffecb
+68 http request GET https://registry.npmjs.org/underscore-fix
+69 verbose request uri https://registry.npmjs.org/underscore
+70 verbose request no auth needed
+71 info attempt registry request try #1 at 12:05:43
+72 verbose etag "7C1BRLYGKR5V8HTCKJBBHI6FQ"
+73 http request GET https://registry.npmjs.org/underscore
+74 http 304 https://registry.npmjs.org/underscore
+75 silly get cb [ 304,
+75 silly get   { date: 'Tue, 14 Apr 2015 03:05:44 GMT',
+75 silly get     server: 'Apache',
+75 silly get     via: '1.1 varnish',
+75 silly get     'last-modified': 'Tue, 14 Apr 2015 03:05:42 GMT',
+75 silly get     'cache-control': 'max-age=60',
+75 silly get     etag: '"7C1BRLYGKR5V8HTCKJBBHI6FQ"',
+75 silly get     age: '16',
+75 silly get     'x-served-by': 'cache-nrt6128-NRT',
+75 silly get     'x-cache': 'HIT',
+75 silly get     'x-cache-hits': '2',
+75 silly get     'x-timer': 'S1428980744.023687,VS0,VE0',
+75 silly get     vary: 'Accept',
+75 silly get     'content-length': '0',
+75 silly get     'keep-alive': 'timeout=10, max=50',
+75 silly get     connection: 'Keep-Alive' } ]
+76 verbose etag https://registry.npmjs.org/underscore from cache
+77 silly addNameRange number 2 { name: 'underscore', range: '*', hasData: true }
+78 silly addNameRange versions [ 'underscore',
+78 silly addNameRange   [ '1.0.3',
+78 silly addNameRange     '1.0.4',
+78 silly addNameRange     '1.1.0',
+78 silly addNameRange     '1.1.1',
+78 silly addNameRange     '1.1.2',
+78 silly addNameRange     '1.1.3',
+78 silly addNameRange     '1.1.4',
+78 silly addNameRange     '1.1.5',
+78 silly addNameRange     '1.1.6',
+78 silly addNameRange     '1.1.7',
+78 silly addNameRange     '1.2.0',
+78 silly addNameRange     '1.2.1',
+78 silly addNameRange     '1.2.2',
+78 silly addNameRange     '1.2.3',
+78 silly addNameRange     '1.2.4',
+78 silly addNameRange     '1.3.0',
+78 silly addNameRange     '1.3.1',
+78 silly addNameRange     '1.3.2',
+78 silly addNameRange     '1.3.3',
+78 silly addNameRange     '1.4.0',
+78 silly addNameRange     '1.4.1',
+78 silly addNameRange     '1.4.2',
+78 silly addNameRange     '1.4.3',
+78 silly addNameRange     '1.4.4',
+78 silly addNameRange     '1.5.0',
+78 silly addNameRange     '1.5.1',
+78 silly addNameRange     '1.5.2',
+78 silly addNameRange     '1.6.0',
+78 silly addNameRange     '1.7.0',
+78 silly addNameRange     '1.8.0',
+78 silly addNameRange     '1.8.1',
+78 silly addNameRange     '1.8.2',
+78 silly addNameRange     '1.8.3' ] ]
+79 verbose addNamed underscore@1.8.3
+80 silly addNamed semver.valid 1.8.3
+81 silly addNamed semver.validRange 1.8.3
+82 silly cache afterAdd underscore@1.8.3
+83 verbose afterAdd /Users/yamashita/.npm/underscore/1.8.3/package/package.json not in flight; writing
+84 verbose afterAdd /Users/yamashita/.npm/underscore/1.8.3/package/package.json written
+85 http 404 https://registry.npmjs.org/underscore-fix
+86 verbose headers { date: 'Tue, 14 Apr 2015 03:05:44 GMT',
+86 verbose headers   server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+86 verbose headers   'content-type': 'application/json',
+86 verbose headers   'cache-control': 'max-age=0',
+86 verbose headers   'content-length': '51',
+86 verbose headers   'accept-ranges': 'bytes',
+86 verbose headers   via: '1.1 varnish',
+86 verbose headers   age: '0',
+86 verbose headers   'x-served-by': 'cache-nrt6123-NRT',
+86 verbose headers   'x-cache': 'MISS',
+86 verbose headers   'x-cache-hits': '0',
+86 verbose headers   'x-timer': 'S1428980744.028040,VS0,VE191',
+86 verbose headers   'keep-alive': 'timeout=10, max=50',
+86 verbose headers   connection: 'Keep-Alive' }
+87 silly get cb [ 404,
+87 silly get   { date: 'Tue, 14 Apr 2015 03:05:44 GMT',
+87 silly get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+87 silly get     'content-type': 'application/json',
+87 silly get     'cache-control': 'max-age=0',
+87 silly get     'content-length': '51',
+87 silly get     'accept-ranges': 'bytes',
+87 silly get     via: '1.1 varnish',
+87 silly get     age: '0',
+87 silly get     'x-served-by': 'cache-nrt6123-NRT',
+87 silly get     'x-cache': 'MISS',
+87 silly get     'x-cache-hits': '0',
+87 silly get     'x-timer': 'S1428980744.028040,VS0,VE191',
+87 silly get     'keep-alive': 'timeout=10, max=50',
+87 silly get     connection: 'Keep-Alive' } ]
+88 verbose about to build /usr/local/lib/node_modules/kakahiaka
+89 verbose unlock done using /Users/yamashita/.npm/_locks/kakahiaka-4b631a55bb9c2fbe.lock for /usr/local/lib/node_modules/kakahiaka
+90 verbose stack Error: 404 Not Found: underscore-fix
+90 verbose stack     at CachingRegistryClient.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:241:14)
+90 verbose stack     at Request._callback (/usr/local/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:172:14)
+90 verbose stack     at Request.self.callback (/usr/local/lib/node_modules/npm/node_modules/request/request.js:373:22)
+90 verbose stack     at Request.emit (events.js:98:17)
+90 verbose stack     at Request.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1318:14)
+90 verbose stack     at Request.emit (events.js:117:20)
+90 verbose stack     at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/npm/node_modules/request/request.js:1266:12)
+90 verbose stack     at IncomingMessage.emit (events.js:117:20)
+90 verbose stack     at _stream_readable.js:944:16
+90 verbose stack     at process._tickCallback (node.js:442:13)
+91 verbose statusCode 404
+92 verbose pkgid underscore-fix
+93 verbose cwd /Users/yamashita/Work/kakahiaka
+94 error Darwin 14.1.0
+95 error argv "node" "/usr/local/bin/npm" "install" "-g"
+96 error node v0.10.35
+97 error npm  v2.1.17
+98 error code E404
+99 error 404 Not Found: underscore-fix
+99 error 404
+99 error 404 'underscore-fix' is not in the npm registry.
+99 error 404 You should bug the author to publish it (or use the name yourself!)
+99 error 404 It was specified as a dependency of 'kakahiaka'
+99 error 404
+99 error 404 Note that you can also install from a
+99 error 404 tarball, folder, http url, or git url.
+100 verbose exit [ 1, true ]
+101 verbose unbuild lib/node_modules/kakahiaka
+102 info preuninstall kakahiaka@0.1.2
+103 info uninstall kakahiaka@0.1.2
+104 verbose unbuild rmStuff kakahiaka@0.1.2 from /usr/local/lib/node_modules
+105 info postuninstall kakahiaka@0.1.2
+106 verbose gentlyRm vacuuming /usr/local/lib/node_modules/kakahiaka
+107 silly gentlyRm purging /usr/local/lib/node_modules/kakahiaka
+108 silly gentlyRm quitting because other entries in /usr/local/lib/node_modules

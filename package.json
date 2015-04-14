@@ -1,0 +1,21 @@
+{
+    "name": "kakahiaka",
+    "version": "0.1.2",
+    "author":  "Minori Yamashita <ympbyc@gmail.com>",
+    "description": "Nothing else but Flux",
+    "main": "kakahiaka.js",
+    "moduleType": [
+        "globals"
+    ],
+    "licence": "MIT",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "components",
+        "bower_components"
+    ],
+    "dependencies": {
+        "underscore": "*",
+        "underscore-fix": "*"
+    }
+}
