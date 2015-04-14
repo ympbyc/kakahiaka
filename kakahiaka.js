@@ -50,7 +50,8 @@ var kakahiaka = (function () {
         var st = recover ? _.conj(x, recover()) : x;
         var a =  { _state: st
                    , _watchers: {}
-                   , _persist: persist || function (st) {} };
+                   , _persist: persist || function (st) {}
+                   , _is_kakahiaka_app: true };
         setTimeout(function () {
             commit(a, st, {}, st);
         }, 0);
@@ -67,6 +68,7 @@ var kakahiaka = (function () {
      */
     function deftransition (f) {
         return _.optarg(function (app, args) {
+            if ( ! app._is_kakahiaka_app) throw "The first argument to a transition must be an app";
             var old_s = _.clone(deref(app));
             var diff  = _.apply(_.partial(f, old_s), args);
             if ( ! diff) return undefined;
